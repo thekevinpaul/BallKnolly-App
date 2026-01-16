@@ -1,7 +1,7 @@
 """
 Premier League Stats Hub - Comprehensive Player Analysis
 Live data with detailed player statistics
-Official PL Branding
+Official PL Branding - White Theme
 """
 
 import streamlit as st
@@ -23,9 +23,8 @@ st.set_page_config(
 # Get the directory where app.py is located
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Load local PL logo
+# Load local PL logo as base64
 def get_logo_base64():
-    """Load local PL logo as base64"""
     try:
         png_path = os.path.join(APP_DIR, "imgs", "Premier League_Logo_Alternative_1.png")
         if os.path.exists(png_path):
@@ -37,22 +36,30 @@ def get_logo_base64():
 
 LOGO_BASE64 = get_logo_base64()
 
-# Official PL Brand Colors
+# Brand Colors
 PL_PURPLE = "#37003c"
 PL_MAGENTA = "#ff2882"
 PL_CYAN = "#04f5ff"
 PL_GREEN = "#00ff85"
 PL_WHITE = "#FFFFFF"
-PL_OFFWHITE = "#f8f8f8"
+PL_OFFWHITE = "#f5f5f5"
 
-# Season data
-SEASONS = ['2024/25', '2023/24', '2022/23', '2021/22', '2020/21', '2019/20', '2018/19']
-SEASON_API_MAP = {'2024/25': '2024', '2023/24': '2023', '2022/23': '2022', '2021/22': '2021', '2020/21': '2020', '2019/20': '2019', '2018/19': '2018'}
+# Seasons - including 2025/26
+SEASONS = ['2025/26', '2024/25', '2023/24', '2022/23', '2021/22', '2020/21', '2019/20']
+SEASON_API_MAP = {
+    '2025/26': '2025',
+    '2024/25': '2024', 
+    '2023/24': '2023', 
+    '2022/23': '2022', 
+    '2021/22': '2021', 
+    '2020/21': '2020', 
+    '2019/20': '2019'
+}
 
 # Player comparison colors
-PLAYER_COLORS = [PL_MAGENTA, PL_CYAN, PL_GREEN, "#ffd700", "#ff6b35"]
+PLAYER_COLORS = ["#ff2882", "#04f5ff", "#00ff85", "#ffd700", "#ff6b35"]
 
-# Professional CSS
+# CSS - Clean White Theme
 st.markdown(f"""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&display=swap');
@@ -62,8 +69,6 @@ st.markdown(f"""
     --pl-magenta: {PL_MAGENTA};
     --pl-cyan: {PL_CYAN};
     --pl-green: {PL_GREEN};
-    --pl-white: {PL_WHITE};
-    --pl-offwhite: {PL_OFFWHITE};
 }}
 
 * {{
@@ -71,7 +76,7 @@ st.markdown(f"""
 }}
 
 .stApp {{
-    background: var(--pl-offwhite) !important;
+    background: {PL_OFFWHITE} !important;
 }}
 
 #MainMenu, footer, header, [data-testid="stToolbar"] {{
@@ -83,51 +88,51 @@ st.markdown(f"""
     max-width: 100%;
 }}
 
-/* Header */
+/* WHITE HEADER */
 .pl-header {{
-    background: linear-gradient(135deg, var(--pl-purple) 0%, #1a001e 100%);
+    background: linear-gradient(135deg, {PL_PURPLE} 0%, #1a001e 100%);
     padding: 1.5rem 2rem;
     display: flex;
     align-items: center;
     gap: 1.5rem;
     flex-wrap: wrap;
-    border-bottom: 4px solid var(--pl-magenta);
+    border-bottom: 4px solid {PL_MAGENTA};
 }}
 
 .pl-logo {{
-    height: 70px;
+    height: 65px;
     width: auto;
+    filter: brightness(0) invert(1);
 }}
 
 .pl-title {{
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 3rem;
-    color: var(--pl-white);
+    font-size: 2.8rem;
+    color: white;
     margin: 0;
     letter-spacing: 3px;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
 }}
 
 .pl-subtitle {{
-    color: var(--pl-cyan);
-    font-size: 0.9rem;
-    font-weight: 600;
+    color: {PL_CYAN};
+    font-size: 0.85rem;
+    font-weight: 700;
     letter-spacing: 2px;
     text-transform: uppercase;
-    margin: 0.25rem 0 0 0;
+    margin: 0.2rem 0 0 0;
 }}
 
 /* Content */
 .content-area {{
     padding: 1.5rem 2rem;
-    max-width: 1600px;
+    max-width: 1500px;
     margin: 0 auto;
 }}
 
 /* Tabs */
 .stTabs [data-baseweb="tab-list"] {{
     gap: 0;
-    background: var(--pl-purple);
+    background: {PL_PURPLE};
     border-radius: 8px 8px 0 0;
 }}
 
@@ -139,7 +144,6 @@ st.markdown(f"""
     font-size: 0.8rem;
     text-transform: uppercase;
     letter-spacing: 1px;
-    border: none;
 }}
 
 .stTabs [data-baseweb="tab"]:hover {{
@@ -148,7 +152,7 @@ st.markdown(f"""
 }}
 
 .stTabs [aria-selected="true"] {{
-    background: var(--pl-magenta) !important;
+    background: {PL_MAGENTA} !important;
     color: white !important;
 }}
 
@@ -156,72 +160,63 @@ st.markdown(f"""
     background: white;
     border-radius: 0 0 8px 8px;
     padding: 1.5rem;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
 }}
 
 /* Section headers */
 .section-header {{
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
     margin: 1.5rem 0 1rem 0;
     padding-bottom: 0.5rem;
-    border-bottom: 3px solid var(--pl-purple);
+    border-bottom: 3px solid {PL_PURPLE};
 }}
 
 .section-title {{
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.6rem;
-    color: var(--pl-purple);
+    font-size: 1.5rem;
+    color: {PL_PURPLE};
     margin: 0;
     letter-spacing: 1px;
 }}
 
-/* Stats grid */
+/* Stats row */
 .stats-row {{
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 0.75rem;
-    margin-bottom: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
 }}
 
 .stat-card {{
     background: white;
     border-radius: 8px;
-    padding: 1rem;
+    padding: 1.25rem;
     text-align: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    border-left: 4px solid var(--pl-magenta);
-    transition: transform 0.2s;
-}}
-
-.stat-card:hover {{
-    transform: translateY(-2px);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    border-left: 4px solid {PL_MAGENTA};
 }}
 
 .stat-value {{
     font-family: 'Bebas Neue', sans-serif;
     font-size: 2rem;
-    color: var(--pl-purple);
+    color: {PL_PURPLE};
     margin: 0;
-    line-height: 1;
 }}
 
 .stat-label {{
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     color: #666;
     text-transform: uppercase;
     letter-spacing: 1px;
-    margin: 0.3rem 0 0 0;
+    margin: 0.25rem 0 0 0;
     font-weight: 600;
 }}
 
 /* Tables */
-.table-container {{
+.table-wrap {{
     background: white;
     border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
 }}
 
 .data-table {{
@@ -231,14 +226,13 @@ st.markdown(f"""
 }}
 
 .data-table th {{
-    background: var(--pl-purple);
+    background: {PL_PURPLE};
     color: white;
     font-weight: 700;
     padding: 0.9rem 0.6rem;
     text-align: center;
     font-size: 0.7rem;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
 }}
 
 .data-table th:nth-child(2) {{
@@ -254,13 +248,13 @@ st.markdown(f"""
 }}
 
 .data-table tr:hover {{
-    background: rgba(255, 40, 130, 0.05);
+    background: rgba(255, 40, 130, 0.04);
 }}
 
 .team-cell {{
     text-align: left !important;
     font-weight: 700 !important;
-    color: var(--pl-purple) !important;
+    color: {PL_PURPLE} !important;
 }}
 
 /* Position badges */
@@ -275,23 +269,23 @@ st.markdown(f"""
     font-size: 0.8rem;
 }}
 
-.pos-ucl {{ background: var(--pl-cyan); color: var(--pl-purple); }}
+.pos-ucl {{ background: {PL_CYAN}; color: {PL_PURPLE}; }}
 .pos-uel {{ background: #f97316; color: white; }}
-.pos-uecl {{ background: var(--pl-green); color: var(--pl-purple); }}
+.pos-uecl {{ background: {PL_GREEN}; color: {PL_PURPLE}; }}
 .pos-rel {{ background: #ef4444; color: white; }}
 .pos-mid {{ background: #e5e7eb; color: #333; }}
 
 .pts-cell {{
     font-weight: 900 !important;
-    color: var(--pl-purple) !important;
+    color: {PL_PURPLE} !important;
     font-size: 1.05rem !important;
 }}
 
-.gd-pos {{ color: var(--pl-green) !important; font-weight: 700 !important; }}
+.gd-pos {{ color: #22c55e !important; font-weight: 700 !important; }}
 .gd-neg {{ color: #ef4444 !important; font-weight: 700 !important; }}
 
 .goals-pill {{
-    background: var(--pl-magenta);
+    background: {PL_MAGENTA};
     color: white;
     padding: 0.3rem 0.7rem;
     border-radius: 20px;
@@ -305,15 +299,14 @@ st.markdown(f"""
     padding: 1.25rem;
     box-shadow: 0 3px 12px rgba(0,0,0,0.08);
     margin-bottom: 1rem;
-    border-top: 4px solid var(--pl-magenta);
+    border-top: 4px solid {PL_MAGENTA};
 }}
 
 .player-name {{
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.5rem;
-    color: var(--pl-purple);
+    font-size: 1.4rem;
+    color: {PL_PURPLE};
     margin: 0;
-    letter-spacing: 0.5px;
 }}
 
 .player-team {{
@@ -325,59 +318,60 @@ st.markdown(f"""
 
 .player-pos {{
     display: inline-block;
-    background: var(--pl-purple);
+    background: {PL_PURPLE};
     color: white;
-    padding: 0.25rem 0.6rem;
+    padding: 0.2rem 0.6rem;
     border-radius: 4px;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     font-weight: 700;
     text-transform: uppercase;
-    margin-top: 0.5rem;
+    margin-top: 0.4rem;
 }}
 
-/* Category sections */
-.stat-category {{
-    background: linear-gradient(135deg, var(--pl-purple) 0%, #2d0033 100%);
+/* Stat categories */
+.cat-header {{
+    background: linear-gradient(135deg, {PL_PURPLE} 0%, #2d0033 100%);
     color: white;
-    padding: 0.6rem 1rem;
+    padding: 0.5rem 1rem;
     border-radius: 6px 6px 0 0;
     font-weight: 700;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 1px;
-    margin-top: 1rem;
+    margin-top: 0.75rem;
 }}
 
-.stat-category-content {{
-    background: white;
+.cat-content {{
+    background: {PL_OFFWHITE};
     border: 1px solid #eee;
     border-top: none;
     border-radius: 0 0 6px 6px;
-    padding: 1rem;
+    padding: 0.75rem;
 }}
 
 .stat-grid {{
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 0.75rem;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 0.5rem;
 }}
 
-.stat-item {{
-    background: var(--pl-offwhite);
+.stat-box {{
+    background: white;
     border-radius: 6px;
-    padding: 0.75rem;
+    padding: 0.6rem;
     text-align: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }}
 
-.stat-item-value {{
+.stat-box-val {{
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.6rem;
-    color: var(--pl-purple);
+    font-size: 1.4rem;
+    color: {PL_PURPLE};
     margin: 0;
 }}
 
-.stat-item-label {{
-    font-size: 0.6rem;
+.stat-box-lbl {{
+    font-size: 0.55rem;
     color: #666;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -385,71 +379,18 @@ st.markdown(f"""
     font-weight: 600;
 }}
 
-/* Compare layout */
-.compare-grid {{
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-}}
-
-.compare-player-card {{
+/* Compare player card */
+.cmp-card {{
     background: white;
     border-radius: 8px;
     padding: 1rem;
     text-align: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-}}
-
-.compare-stat-bar {{
-    background: white;
-    border-radius: 6px;
-    padding: 0.75rem 1rem;
-    margin-bottom: 0.5rem;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-}}
-
-.compare-label {{
-    text-align: center;
-    font-size: 0.75rem;
-    color: #666;
-    text-transform: uppercase;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-}}
-
-.compare-values {{
-    display: flex;
-    justify-content: space-between;
-    gap: 0.5rem;
-}}
-
-.compare-value {{
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.2rem;
-    padding: 0.25rem 0.75rem;
-    border-radius: 4px;
-}}
-
-/* Search box styling */
-.stTextInput > div > div > input {{
-    border: 2px solid #ddd !important;
-    border-radius: 8px !important;
-    padding: 0.75rem 1rem !important;
-    font-size: 1rem !important;
-}}
-
-.stTextInput > div > div > input:focus {{
-    border-color: var(--pl-magenta) !important;
-    box-shadow: 0 0 0 2px rgba(255, 40, 130, 0.1) !important;
-}}
-
-.stMultiSelect > div {{
-    border-radius: 8px !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border-top: 4px solid {PL_MAGENTA};
 }}
 
 /* Live badge */
-.live-indicator {{
+.live-badge {{
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
@@ -478,7 +419,7 @@ st.markdown(f"""
 .footer {{
     text-align: center;
     padding: 2rem;
-    color: #666;
+    color: #888;
     font-size: 0.8rem;
     border-top: 1px solid #ddd;
     margin-top: 2rem;
@@ -488,7 +429,6 @@ st.markdown(f"""
 @media (max-width: 768px) {{
     .pl-title {{ font-size: 2rem; }}
     .content-area {{ padding: 1rem; }}
-    .compare-grid {{ grid-template-columns: 1fr; }}
 }}
 </style>
 """, unsafe_allow_html=True)
@@ -499,7 +439,6 @@ API_BASE = "https://api.football-data.org/v4"
 
 @st.cache_data(ttl=300, show_spinner=False)
 def fetch_standings(api_key, season='2024'):
-    """Fetch live standings"""
     if not api_key:
         return None, "No API key"
     try:
@@ -529,7 +468,6 @@ def fetch_standings(api_key, season='2024'):
 
 @st.cache_data(ttl=300, show_spinner=False)
 def fetch_scorers(api_key, season='2024', limit=50):
-    """Fetch top scorers with detailed stats"""
     if not api_key:
         return None, "No API key"
     try:
@@ -561,12 +499,10 @@ def fetch_scorers(api_key, season='2024', limit=50):
 
 @st.cache_data(ttl=600, show_spinner=False)
 def fetch_all_players(api_key, season='2024'):
-    """Fetch all players from all teams"""
     if not api_key:
         return [], "No API key"
     try:
         headers = {'X-Auth-Token': api_key}
-        # First get all teams
         teams_url = f"{API_BASE}/competitions/PL/teams?season={season}"
         teams_resp = requests.get(teams_url, headers=headers, timeout=15)
         
@@ -585,37 +521,19 @@ def fetch_all_players(api_key, season='2024'):
                     'team': team_name,
                     'nationality': player.get('nationality', 'N/A'),
                     'position': player.get('position', 'Unknown'),
-                    'dateOfBirth': player.get('dateOfBirth'),
                 })
         
         return all_players, None
     except Exception as e:
         return [], str(e)
 
-@st.cache_data(ttl=300, show_spinner=False)
-def fetch_player_matches(api_key, player_id, season='2024'):
-    """Fetch player match data for detailed stats"""
-    if not api_key or not player_id:
-        return None, "Missing parameters"
-    try:
-        headers = {'X-Auth-Token': api_key}
-        url = f"{API_BASE}/persons/{player_id}/matches?season={season}&competitions=PL"
-        resp = requests.get(url, headers=headers, timeout=15)
-        if resp.status_code == 200:
-            return resp.json(), None
-        return None, f"API error: {resp.status_code}"
-    except Exception as e:
-        return None, str(e)
-
 # ============ RENDER FUNCTIONS ============
 
 def render_header():
-    """Render the header with PL branding"""
     logo_html = ""
     if LOGO_BASE64:
         logo_html = f'<img src="data:image/png;base64,{LOGO_BASE64}" class="pl-logo" alt="Premier League">'
     else:
-        # Fallback to external URL
         logo_html = '<img src="https://www.premierleague.com/resources/rebrand/v7.129.2/i/elements/pl-main-logo.png" class="pl-logo" alt="Premier League">'
     
     st.markdown(f"""
@@ -629,8 +547,7 @@ def render_header():
     """, unsafe_allow_html=True)
 
 def render_standings_table(df):
-    """Render standings table"""
-    html = '<div class="table-container"><table class="data-table">'
+    html = '<div class="table-wrap"><table class="data-table">'
     html += '<thead><tr><th>#</th><th>Club</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th></tr></thead>'
     html += '<tbody>'
     
@@ -664,8 +581,7 @@ def render_standings_table(df):
     return html
 
 def render_scorers_table(players):
-    """Render scorers table"""
-    html = '<div class="table-container"><table class="data-table">'
+    html = '<div class="table-wrap"><table class="data-table">'
     html += '<thead><tr><th>#</th><th>Player</th><th>Team</th><th>Goals</th><th>Assists</th><th>Pens</th><th>Games</th><th>G/Game</th></tr></thead>'
     html += '<tbody>'
     
@@ -685,9 +601,8 @@ def render_scorers_table(players):
     html += '</tbody></table></div>'
     return html
 
-def render_player_stats_card(player, color=PL_MAGENTA):
-    """Render detailed player stats card with categories"""
-    # Calculate derived stats
+def render_player_card(player, color=PL_MAGENTA):
+    """Render player stats card - NO HTML COMMENTS"""
     goals = player.get('goals', 0)
     assists = player.get('assists', 0)
     played = player.get('played', 1) or 1
@@ -697,7 +612,7 @@ def render_player_stats_card(player, color=PL_MAGENTA):
     apg = round(assists / played, 2)
     g_a = goals + assists
     g_a_pg = round(g_a / played, 2)
-    non_pen_goals = goals - penalties
+    non_pen = goals - penalties
     
     html = f"""
     <div class="player-card" style="border-top-color: {color};">
@@ -709,63 +624,60 @@ def render_player_stats_card(player, color=PL_MAGENTA):
             <span class="player-pos">{player.get('position', 'Forward')}</span>
         </div>
         
-        <!-- ATTACKING -->
-        <div class="stat-category" style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);">Attacking</div>
-        <div class="stat-category-content">
+        <div class="cat-header" style="background: linear-gradient(135deg, #dc2626, #991b1b);">Attacking</div>
+        <div class="cat-content">
             <div class="stat-grid">
-                <div class="stat-item">
-                    <p class="stat-item-value">{goals}</p>
-                    <p class="stat-item-label">Goals</p>
+                <div class="stat-box">
+                    <p class="stat-box-val">{goals}</p>
+                    <p class="stat-box-lbl">Goals</p>
                 </div>
-                <div class="stat-item">
-                    <p class="stat-item-value">{non_pen_goals}</p>
-                    <p class="stat-item-label">Non-Pen Goals</p>
+                <div class="stat-box">
+                    <p class="stat-box-val">{non_pen}</p>
+                    <p class="stat-box-lbl">Non-Pen Goals</p>
                 </div>
-                <div class="stat-item">
-                    <p class="stat-item-value">{penalties}</p>
-                    <p class="stat-item-label">Penalties</p>
+                <div class="stat-box">
+                    <p class="stat-box-val">{penalties}</p>
+                    <p class="stat-box-lbl">Penalties</p>
                 </div>
-                <div class="stat-item">
-                    <p class="stat-item-value">{gpg}</p>
-                    <p class="stat-item-label">Goals/Game</p>
+                <div class="stat-box">
+                    <p class="stat-box-val">{gpg}</p>
+                    <p class="stat-box-lbl">Goals/Game</p>
                 </div>
             </div>
         </div>
         
-        <!-- CREATIVE -->
-        <div class="stat-category" style="background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);">Creative & Passing</div>
-        <div class="stat-category-content">
+        <div class="cat-header" style="background: linear-gradient(135deg, #7c3aed, #5b21b6);">Creative</div>
+        <div class="cat-content">
             <div class="stat-grid">
-                <div class="stat-item">
-                    <p class="stat-item-value">{assists}</p>
-                    <p class="stat-item-label">Assists</p>
+                <div class="stat-box">
+                    <p class="stat-box-val">{assists}</p>
+                    <p class="stat-box-lbl">Assists</p>
                 </div>
-                <div class="stat-item">
-                    <p class="stat-item-value">{apg}</p>
-                    <p class="stat-item-label">Assists/Game</p>
+                <div class="stat-box">
+                    <p class="stat-box-val">{apg}</p>
+                    <p class="stat-box-lbl">Assists/Game</p>
                 </div>
-                <div class="stat-item">
-                    <p class="stat-item-value">{g_a}</p>
-                    <p class="stat-item-label">Goals + Assists</p>
+                <div class="stat-box">
+                    <p class="stat-box-val">{g_a}</p>
+                    <p class="stat-box-lbl">G+A Total</p>
                 </div>
-                <div class="stat-item">
-                    <p class="stat-item-value">{g_a_pg}</p>
-                    <p class="stat-item-label">G+A Per Game</p>
+                <div class="stat-box">
+                    <p class="stat-box-val">{g_a_pg}</p>
+                    <p class="stat-box-lbl">G+A/Game</p>
                 </div>
             </div>
         </div>
         
-        <!-- PLAYING TIME -->
-        <div class="stat-category" style="background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);">Playing Time</div>
-        <div class="stat-category-content">
+        <div class="cat-header" style="background: linear-gradient(135deg, #0891b2, #0e7490);">Playing Time</div>
+        <div class="cat-content">
             <div class="stat-grid">
-                <div class="stat-item">
-                    <p class="stat-item-value">{played}</p>
-                    <p class="stat-item-label">Matches</p>
+                <div class="stat-box">
+                    <p class="stat-box-val">{played}</p>
+                    <p class="stat-box-lbl">Matches</p>
                 </div>
-                <div class="stat-item">
-                    <p class="stat-item-value">{player.get('nationality', 'N/A')[:3].upper()}</p>
-                    <p class="stat-item-label">Nationality</p>
+                <div class="stat-box">
+                    <p class="stat-box-val">{player.get('nationality', 'N/A')[:3].upper()}</p>
+                    <p class="stat-box-lbl">Nationality</p>
                 </div>
             </div>
         </div>
@@ -773,9 +685,8 @@ def render_player_stats_card(player, color=PL_MAGENTA):
     """
     return html
 
-def create_comparison_chart(players_data, stat_key, stat_label, colors):
-    """Create horizontal bar chart for comparison"""
-    names = [p['name'].split()[-1] for p in players_data]  # Last names only
+def create_comparison_bar(players_data, stat_key, stat_label, colors):
+    names = [p['name'].split()[-1] for p in players_data]
     values = [p.get(stat_key, 0) for p in players_data]
     
     fig = go.Figure(go.Bar(
@@ -794,14 +705,13 @@ def create_comparison_chart(players_data, stat_key, stat_label, colors):
         margin=dict(l=0, r=50, t=40, b=20),
         paper_bgcolor='rgba(0,0,0,0)',
         plot_bgcolor='rgba(0,0,0,0)',
-        xaxis=dict(showgrid=True, gridcolor='rgba(0,0,0,0.1)', zeroline=False),
+        xaxis=dict(showgrid=True, gridcolor='rgba(0,0,0,0.08)', zeroline=False),
         yaxis=dict(showgrid=False),
         font=dict(family='Inter', color='#333')
     )
     return fig
 
-def create_radar_chart(players_data, colors):
-    """Create radar chart for player comparison"""
+def create_radar(players_data, colors):
     categories = ['Goals', 'Assists', 'Penalties', 'G+A', 'Games']
     
     fig = go.Figure()
@@ -813,12 +723,11 @@ def create_radar_chart(players_data, colors):
         played = player.get('played', 0)
         g_a = goals + assists
         
-        # Normalize values for radar
-        max_goals = max(p.get('goals', 1) for p in players_data) or 1
-        max_assists = max(p.get('assists', 1) for p in players_data) or 1
-        max_pens = max(p.get('penalties', 1) for p in players_data) or 1
+        max_goals = max((p.get('goals', 0) for p in players_data), default=1) or 1
+        max_assists = max((p.get('assists', 0) for p in players_data), default=1) or 1
+        max_pens = max((p.get('penalties', 0) for p in players_data), default=1) or 1
         max_ga = max((p.get('goals', 0) + p.get('assists', 0)) for p in players_data) or 1
-        max_played = max(p.get('played', 1) for p in players_data) or 1
+        max_played = max((p.get('played', 0) for p in players_data), default=1) or 1
         
         values = [
             (goals / max_goals) * 100,
@@ -828,14 +737,13 @@ def create_radar_chart(players_data, colors):
             (played / max_played) * 100
         ]
         
-        # Convert hex to rgba
         hex_color = colors[i % len(colors)]
         r = int(hex_color[1:3], 16)
         g = int(hex_color[3:5], 16)
         b = int(hex_color[5:7], 16)
         
         fig.add_trace(go.Scatterpolar(
-            r=values + [values[0]],  # Close the polygon
+            r=values + [values[0]],
             theta=categories + [categories[0]],
             name=player['name'].split()[-1],
             line=dict(color=hex_color, width=3),
@@ -845,27 +753,12 @@ def create_radar_chart(players_data, colors):
     
     fig.update_layout(
         polar=dict(
-            radialaxis=dict(
-                visible=True,
-                range=[0, 100],
-                showticklabels=False,
-                gridcolor='rgba(0,0,0,0.1)'
-            ),
-            angularaxis=dict(
-                gridcolor='rgba(0,0,0,0.1)',
-                linecolor='rgba(0,0,0,0.1)'
-            ),
+            radialaxis=dict(visible=True, range=[0, 100], showticklabels=False, gridcolor='rgba(0,0,0,0.1)'),
+            angularaxis=dict(gridcolor='rgba(0,0,0,0.1)'),
             bgcolor='rgba(0,0,0,0)'
         ),
         showlegend=True,
-        legend=dict(
-            orientation='h',
-            yanchor='bottom',
-            y=-0.2,
-            xanchor='center',
-            x=0.5,
-            font=dict(size=12)
-        ),
+        legend=dict(orientation='h', yanchor='bottom', y=-0.2, xanchor='center', x=0.5),
         paper_bgcolor='rgba(0,0,0,0)',
         height=400,
         margin=dict(l=60, r=60, t=40, b=60)
@@ -886,7 +779,6 @@ def main():
     
     st.markdown('<div class="content-area">', unsafe_allow_html=True)
     
-    # API Key input if not set
     if not api_key:
         st.warning("**API Key Required** - Get your free key at [football-data.org](https://www.football-data.org/client/register)")
         api_key = st.text_input("Enter your API Key:", type="password")
@@ -898,13 +790,13 @@ def main():
         season_code = SEASON_API_MAP.get(selected_season, '2024')
     with col2:
         if api_key:
-            st.markdown('<div class="live-indicator"><div class="live-dot"></div>LIVE DATA</div>', unsafe_allow_html=True)
+            st.markdown('<div class="live-badge"><div class="live-dot"></div>LIVE DATA</div>', unsafe_allow_html=True)
     
     if not api_key:
         st.info("Enter your API key to view live Premier League data.")
         return
     
-    # Fetch all data
+    # Fetch data
     with st.spinner("Loading Premier League data..."):
         standings, standings_err = fetch_standings(api_key, season_code)
         scorers, scorers_err = fetch_scorers(api_key, season_code)
@@ -953,32 +845,28 @@ def main():
             st.markdown('<div class="section-header"><h2 class="section-title">Golden Boot Race</h2></div>', unsafe_allow_html=True)
             st.markdown(render_scorers_table(scorers), unsafe_allow_html=True)
             
-            # Top 3 cards
             if len(scorers) >= 3:
                 st.markdown('<div class="section-header"><h2 class="section-title">Top 3 Scorers</h2></div>', unsafe_allow_html=True)
                 cols = st.columns(3)
                 for i in range(3):
                     with cols[i]:
-                        st.markdown(render_player_stats_card(scorers[i], PLAYER_COLORS[i]), unsafe_allow_html=True)
+                        st.markdown(render_player_card(scorers[i], PLAYER_COLORS[i]), unsafe_allow_html=True)
     
     # ===== TAB 3: PLAYER SEARCH =====
     with tab3:
         st.markdown('<div class="section-header"><h2 class="section-title">Search Any Player</h2></div>', unsafe_allow_html=True)
         
-        # Combine all players and scorers for search
-        searchable_players = []
-        
-        # Add scorers with their stats
+        # Build searchable player list
+        searchable = []
         if scorers:
             for p in scorers:
-                searchable_players.append(p)
+                searchable.append(p)
         
-        # Add other players from squads
         if all_players:
             scorer_names = {p['name'] for p in scorers} if scorers else set()
             for p in all_players:
                 if p['name'] not in scorer_names:
-                    searchable_players.append({
+                    searchable.append({
                         'id': p.get('id'),
                         'name': p['name'],
                         'team': p['team'],
@@ -990,152 +878,121 @@ def main():
                         'played': 0
                     })
         
-        if searchable_players:
-            # Search input
+        if searchable:
             search_query = st.text_input("Search player by name:", placeholder="e.g., Salah, Haaland, Palmer...")
             
             if search_query:
-                # Filter players
                 query_lower = search_query.lower()
-                matches = [p for p in searchable_players if query_lower in p['name'].lower()]
+                matches = [p for p in searchable if query_lower in p['name'].lower()]
                 
                 if matches:
                     st.markdown(f"**Found {len(matches)} player(s)**")
-                    
-                    # Show first 10 matches
                     for p in matches[:10]:
-                        st.markdown(render_player_stats_card(p), unsafe_allow_html=True)
+                        st.markdown(render_player_card(p), unsafe_allow_html=True)
                 else:
                     st.info(f"No players found matching '{search_query}'")
             else:
-                st.info("Type a player name to search across all Premier League squads.")
-                st.markdown(f"**{len(searchable_players)} players available**")
+                st.info(f"Type a player name to search. **{len(searchable)} players available.**")
         else:
-            st.warning("Could not load player data. Check API key.")
+            st.warning("Could not load player data.")
     
     # ===== TAB 4: COMPARE PLAYERS =====
     with tab4:
         st.markdown('<div class="section-header"><h2 class="section-title">Compare Up To 5 Players</h2></div>', unsafe_allow_html=True)
         
-        # Build player options for comparison
-        compare_options = []
         if scorers:
-            for p in scorers:
-                compare_options.append(p)
-        
-        if compare_options:
-            # Season range selection
+            # Season range
             col1, col2 = st.columns(2)
             with col1:
-                from_season = st.selectbox("From Season", SEASONS, index=0, key='from_season')
+                from_season = st.selectbox("From Season", SEASONS, index=0, key='from_s')
             with col2:
-                to_season = st.selectbox("To Season", SEASONS, index=0, key='to_season')
+                to_season = st.selectbox("To Season", SEASONS, index=0, key='to_s')
             
             st.markdown("---")
             
-            # Player selection with search
-            player_names = [p['name'] for p in compare_options]
+            # Full player list for comparison - NO filtering that blocks selection
+            all_player_names = [p['name'] for p in scorers]
             
-            # Text search for adding players
-            search_for_compare = st.text_input("Search player to add:", placeholder="Type to search...", key="compare_search")
-            
-            available_for_select = player_names
-            if search_for_compare:
-                available_for_select = [n for n in player_names if search_for_compare.lower() in n.lower()]
-            
-            selected_players = st.multiselect(
+            # Multiselect without filtering
+            selected_names = st.multiselect(
                 "Select players to compare (up to 5):",
-                options=available_for_select,
+                options=all_player_names,
+                default=[],
                 max_selections=5,
-                default=available_for_select[:2] if len(available_for_select) >= 2 else available_for_select[:1] if available_for_select else []
+                key="compare_select"
             )
             
-            if len(selected_players) >= 2:
+            if len(selected_names) >= 2:
                 # Get player data
-                players_data = [p for p in compare_options if p['name'] in selected_players]
+                players_data = [p for p in scorers if p['name'] in selected_names]
                 
-                # Season range note
                 if from_season != to_season:
-                    st.info(f"Showing stats for {selected_season} (season aggregation requires premium API)")
+                    st.info(f"Showing {selected_season} stats (multi-season aggregation requires premium API)")
                 
-                # Player cards grid
-                st.markdown('<div class="compare-grid">', unsafe_allow_html=True)
+                # Player cards
+                st.markdown('<div class="section-header"><h2 class="section-title">Selected Players</h2></div>', unsafe_allow_html=True)
                 cols = st.columns(len(players_data))
                 for i, p in enumerate(players_data):
                     with cols[i]:
                         st.markdown(f"""
-                        <div class="compare-player-card" style="border-top: 4px solid {PLAYER_COLORS[i]};">
-                            <h3 class="player-name" style="font-size: 1.2rem;">{p['name']}</h3>
+                        <div class="cmp-card" style="border-top-color: {PLAYER_COLORS[i]};">
+                            <h3 class="player-name" style="font-size: 1.1rem;">{p['name']}</h3>
                             <p class="player-team">{p['team']}</p>
                             <span class="player-pos">{p.get('position', 'FW')}</span>
                         </div>
                         """, unsafe_allow_html=True)
-                st.markdown('</div>', unsafe_allow_html=True)
                 
                 # Radar chart
                 st.markdown('<div class="section-header"><h2 class="section-title">Overall Comparison</h2></div>', unsafe_allow_html=True)
-                radar_fig = create_radar_chart(players_data, PLAYER_COLORS)
-                st.plotly_chart(radar_fig, use_container_width=True, config={'displayModeBar': False})
+                radar = create_radar(players_data, PLAYER_COLORS)
+                st.plotly_chart(radar, use_container_width=True, config={'displayModeBar': False})
                 
-                # Stat comparisons
+                # Bar comparisons
                 st.markdown('<div class="section-header"><h2 class="section-title">Stat Breakdown</h2></div>', unsafe_allow_html=True)
                 
-                stat_comparisons = [
-                    ('goals', 'Goals'),
-                    ('assists', 'Assists'),
-                    ('penalties', 'Penalties'),
-                    ('played', 'Matches Played'),
-                ]
-                
+                stats = [('goals', 'Goals'), ('assists', 'Assists'), ('penalties', 'Penalties'), ('played', 'Matches')]
                 col1, col2 = st.columns(2)
-                for i, (key, label) in enumerate(stat_comparisons):
+                for i, (key, label) in enumerate(stats):
                     with col1 if i % 2 == 0 else col2:
-                        fig = create_comparison_chart(players_data, key, label, PLAYER_COLORS)
+                        fig = create_comparison_bar(players_data, key, label, PLAYER_COLORS)
                         st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
                 
-                # Goals per game comparison
+                # Efficiency stats
                 st.markdown('<div class="section-header"><h2 class="section-title">Efficiency</h2></div>', unsafe_allow_html=True)
-                
-                # Calculate derived stats
-                efficiency_data = []
-                for p in players_data:
+                cols = st.columns(len(players_data))
+                for i, p in enumerate(players_data):
                     played = max(p.get('played', 1), 1)
-                    efficiency_data.append({
-                        'name': p['name'],
-                        'gpg': round(p.get('goals', 0) / played, 2),
-                        'apg': round(p.get('assists', 0) / played, 2),
-                        'g_a_pg': round((p.get('goals', 0) + p.get('assists', 0)) / played, 2)
-                    })
-                
-                cols = st.columns(len(efficiency_data))
-                for i, e in enumerate(efficiency_data):
+                    gpg = round(p.get('goals', 0) / played, 2)
+                    apg = round(p.get('assists', 0) / played, 2)
+                    gapg = round((p.get('goals', 0) + p.get('assists', 0)) / played, 2)
+                    
                     with cols[i]:
                         st.markdown(f"""
                         <div class="player-card" style="border-top-color: {PLAYER_COLORS[i]};">
-                            <h4 style="margin: 0; color: {PL_PURPLE};">{e['name'].split()[-1]}</h4>
-                            <div class="stat-grid" style="margin-top: 0.75rem;">
-                                <div class="stat-item">
-                                    <p class="stat-item-value">{e['gpg']}</p>
-                                    <p class="stat-item-label">Goals/Game</p>
+                            <h4 style="margin: 0; color: {PL_PURPLE}; font-size: 0.9rem;">{p['name'].split()[-1]}</h4>
+                            <div class="stat-grid" style="margin-top: 0.5rem;">
+                                <div class="stat-box">
+                                    <p class="stat-box-val">{gpg}</p>
+                                    <p class="stat-box-lbl">G/Game</p>
                                 </div>
-                                <div class="stat-item">
-                                    <p class="stat-item-value">{e['apg']}</p>
-                                    <p class="stat-item-label">Assists/Game</p>
+                                <div class="stat-box">
+                                    <p class="stat-box-val">{apg}</p>
+                                    <p class="stat-box-lbl">A/Game</p>
                                 </div>
-                                <div class="stat-item">
-                                    <p class="stat-item-value">{e['g_a_pg']}</p>
-                                    <p class="stat-item-label">G+A/Game</p>
+                                <div class="stat-box">
+                                    <p class="stat-box-val">{gapg}</p>
+                                    <p class="stat-box-lbl">G+A/Game</p>
                                 </div>
                             </div>
                         </div>
                         """, unsafe_allow_html=True)
                 
-            elif len(selected_players) == 1:
+            elif len(selected_names) == 1:
                 st.info("Select at least 2 players to compare.")
             else:
-                st.info("Search and select players above to compare their stats.")
+                st.info("Select players above to compare their stats.")
         else:
-            st.warning("No player data available for comparison.")
+            st.warning("No player data available.")
     
     # Footer
     st.markdown(f"""
