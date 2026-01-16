@@ -54,6 +54,42 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+# Sample data for demo when scraping is blocked
+def get_sample_data():
+    """Return sample Premier League data for demo purposes"""
+    team_data = {
+        'team': ['Manchester City', 'Arsenal', 'Liverpool', 'Aston Villa', 'Tottenham', 
+                 'Chelsea', 'Newcastle', 'Manchester Utd', 'West Ham', 'Crystal Palace',
+                 'Brighton', 'Bournemouth', 'Fulham', 'Wolves', 'Everton',
+                 'Brentford', 'Nottingham Forest', 'Luton Town', 'Burnley', 'Sheffield Utd'],
+        'games': [38, 38, 38, 38, 38, 38, 38, 38, 38, 38, 38, 38, 38, 38, 38, 38, 38, 38, 38, 38],
+        'wins': [28, 26, 24, 22, 20, 18, 18, 18, 14, 13, 12, 13, 13, 11, 13, 10, 9, 6, 5, 3],
+        'draws': [7, 5, 8, 6, 6, 9, 6, 3, 9, 10, 12, 9, 8, 12, 6, 9, 9, 8, 9, 7],
+        'losses': [3, 7, 6, 10, 12, 11, 14, 17, 15, 15, 14, 16, 17, 15, 19, 19, 20, 24, 24, 28],
+        'goals_for': [96, 91, 86, 76, 74, 77, 85, 57, 60, 57, 55, 54, 55, 50, 40, 56, 49, 52, 41, 35],
+        'goals_against': [34, 29, 41, 61, 61, 63, 62, 58, 74, 58, 62, 67, 61, 65, 51, 65, 67, 85, 78, 104],
+        'points': [91, 83, 80, 72, 66, 63, 60, 57, 51, 49, 48, 48, 47, 45, 45, 39, 36, 26, 24, 16]
+    }
+    team_stats = pd.DataFrame(team_data)
+    team_stats = team_stats.set_index('team')
+    
+    player_data = {
+        'player': ['Erling Haaland', 'Cole Palmer', 'Alexander Isak', 'Ollie Watkins', 'Son Heung-min',
+                   'Mohamed Salah', 'Jarrod Bowen', 'Dominic Solanke', 'Nicolas Jackson', 'Bryan Mbeumo',
+                   'Phil Foden', 'Bruno Fernandes', 'Bukayo Saka', 'Eberechi Eze', 'Anthony Gordon'],
+        'goals': [27, 22, 21, 19, 17, 18, 16, 16, 14, 13, 12, 10, 16, 11, 11],
+        'assists': [5, 11, 2, 13, 10, 10, 6, 3, 5, 7, 8, 8, 9, 4, 10],
+        'team': ['Manchester City', 'Chelsea', 'Newcastle', 'Aston Villa', 'Tottenham',
+                 'Liverpool', 'West Ham', 'Bournemouth', 'Chelsea', 'Brentford',
+                 'Manchester City', 'Manchester Utd', 'Arsenal', 'Crystal Palace', 'Newcastle']
+    }
+    player_stats = pd.DataFrame(player_data)
+    player_stats = player_stats.set_index('player')
+    
+    games = pd.DataFrame({'game': range(1, 381)})  # Placeholder
+    
+    return games, team_stats, player_stats
+
 # Cache data fetching
 @st.cache_data(ttl=3600)  # Cache for 1 hour
 def fetch_league_data(league, season):
@@ -65,6 +101,10 @@ def fetch_league_data(league, season):
         player_stats = fbref.read_player_season_stats(stat_type="standard")
         return games, team_stats, player_stats, None
     except Exception as e:
+        # Return sample data if scraping fails
+        if "403" in str(e) or "Forbidden" in str(e) or "Error" in str(e):
+            games, team_stats, player_stats = get_sample_data()
+            return games, team_stats, player_stats, "demo_mode"
         return None, None, None, str(e)
 
 def create_goals_scatter(team_stats):
@@ -322,7 +362,9 @@ def main():
     with st.spinner(f"Fetching {selected_league_name} {selected_season} data..."):
         games, team_stats, player_stats, error = fetch_league_data(selected_league, selected_season)
     
-    if error:
+    if error == "demo_mode":
+        st.warning("⚠️ **Demo Mode**: Live data scraping is currently blocked. Showing sample Premier League 2023/24 data for demonstration.")
+    elif error:
         st.error(f"Error fetching data: {error}")
         st.info("💡 **Tips:**\n- Check your internet connection\n- Try a different season\n- Some leagues may not have data for all seasons")
         return
