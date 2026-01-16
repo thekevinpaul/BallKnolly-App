@@ -1,6 +1,6 @@
 """
 Soccer Statistics Analysis - Streamlit Web App
-Mobile-friendly interactive soccer statistics visualization
+Premier League Branded, Mobile-First Design
 """
 
 import streamlit as st
@@ -10,47 +10,279 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import plotly.express as px
 from datetime import datetime
-import time
 
-# Page configuration
+# Page configuration - MUST be first Streamlit command
 st.set_page_config(
-    page_title="Soccer Analysis",
+    page_title="PL Stats Hub",
     page_icon="⚽",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"  # Better for mobile
 )
 
-# Custom CSS for mobile-friendly design
-st.markdown("""
+# Premier League Brand Colors
+PL_PURPLE = "#37003c"
+PL_PURPLE_LIGHT = "#4a0050"
+PL_CYAN = "#00ff85"
+PL_MAGENTA = "#ff2882"
+PL_WHITE = "#ffffff"
+PL_GRAY = "#f5f5f5"
+PL_DARK = "#1a1a2e"
+
+# Custom CSS for PL branding and mobile-first design
+st.markdown(f"""
     <style>
-    .main {
+    /* Import Google Font */
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+    
+    /* Global Styles */
+    * {{
+        font-family: 'Poppins', sans-serif;
+    }}
+    
+    .stApp {{
+        background: linear-gradient(180deg, {PL_PURPLE} 0%, {PL_DARK} 100%);
+        min-height: 100vh;
+    }}
+    
+    /* Hide Streamlit branding */
+    #MainMenu {{visibility: hidden;}}
+    footer {{visibility: hidden;}}
+    header {{visibility: hidden;}}
+    
+    /* Main container */
+    .main .block-container {{
+        padding: 1rem 1rem 3rem 1rem;
+        max-width: 100%;
+    }}
+    
+    /* Header styling */
+    .pl-header {{
+        background: linear-gradient(135deg, {PL_PURPLE} 0%, {PL_PURPLE_LIGHT} 100%);
+        padding: 1.5rem;
+        border-radius: 16px;
+        margin-bottom: 1.5rem;
+        border: 2px solid {PL_CYAN};
+        box-shadow: 0 8px 32px rgba(0, 255, 133, 0.15);
+    }}
+    
+    .pl-title {{
+        color: {PL_WHITE};
+        font-size: clamp(1.5rem, 5vw, 2.5rem);
+        font-weight: 800;
+        margin: 0;
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }}
+    
+    .pl-title span {{
+        color: {PL_CYAN};
+    }}
+    
+    .pl-subtitle {{
+        color: {PL_CYAN};
+        font-size: clamp(0.8rem, 2.5vw, 1rem);
+        text-align: center;
+        margin-top: 0.5rem;
+        font-weight: 500;
+    }}
+    
+    /* Stats cards */
+    .stats-container {{
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }}
+    
+    @media (min-width: 768px) {{
+        .stats-container {{
+            grid-template-columns: repeat(4, 1fr);
+        }}
+    }}
+    
+    .stat-card {{
+        background: linear-gradient(135deg, {PL_PURPLE_LIGHT} 0%, {PL_PURPLE} 100%);
         padding: 1rem;
-    }
-    .stSelectbox label {
-        font-size: 1.1rem;
-        font-weight: bold;
-    }
-    .metric-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 1rem;
+        border-radius: 12px;
+        text-align: center;
+        border: 1px solid rgba(0, 255, 133, 0.3);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }}
+    
+    .stat-card:hover {{
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 255, 133, 0.2);
+    }}
+    
+    .stat-value {{
+        color: {PL_CYAN};
+        font-size: clamp(1.5rem, 4vw, 2rem);
+        font-weight: 700;
+        margin: 0;
+    }}
+    
+    .stat-label {{
+        color: {PL_WHITE};
+        font-size: clamp(0.7rem, 2vw, 0.85rem);
+        margin: 0;
+        opacity: 0.9;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }}
+    
+    /* Section headers */
+    .section-header {{
+        color: {PL_WHITE};
+        font-size: clamp(1rem, 3vw, 1.3rem);
+        font-weight: 700;
+        margin: 1.5rem 0 1rem 0;
+        padding-bottom: 0.5rem;
+        border-bottom: 3px solid {PL_CYAN};
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }}
+    
+    /* Selector styling */
+    .stSelectbox > div > div {{
+        background: {PL_PURPLE_LIGHT} !important;
+        border: 2px solid {PL_CYAN} !important;
+        border-radius: 10px !important;
+        color: {PL_WHITE} !important;
+    }}
+    
+    .stSelectbox label {{
+        color: {PL_WHITE} !important;
+        font-weight: 600 !important;
+        font-size: 0.9rem !important;
+    }}
+    
+    /* Multiselect */
+    .stMultiSelect > div > div {{
+        background: {PL_PURPLE_LIGHT} !important;
+        border: 2px solid {PL_CYAN} !important;
+        border-radius: 10px !important;
+    }}
+    
+    .stMultiSelect label {{
+        color: {PL_WHITE} !important;
+        font-weight: 600 !important;
+    }}
+    
+    /* Checkbox styling */
+    .stCheckbox label {{
+        color: {PL_WHITE} !important;
+    }}
+    
+    /* Expander */
+    .streamlit-expanderHeader {{
+        background: {PL_PURPLE_LIGHT} !important;
+        border-radius: 10px !important;
+        color: {PL_WHITE} !important;
+    }}
+    
+    /* Warning/Info boxes */
+    .stAlert {{
+        background: {PL_PURPLE_LIGHT} !important;
+        border: 1px solid {PL_CYAN} !important;
+        border-radius: 10px !important;
+    }}
+    
+    /* Dataframe styling */
+    .stDataFrame {{
         border-radius: 10px;
-        color: white;
-        margin: 0.5rem 0;
-    }
-    h1 {
-        background: linear-gradient(90deg, #667eea, #764ba2);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-size: 2.5rem;
-    }
-    @media (max-width: 768px) {
-        .main {
+        overflow: hidden;
+    }}
+    
+    /* Mobile-specific adjustments */
+    @media (max-width: 768px) {{
+        .main .block-container {{
             padding: 0.5rem;
-        }
-        h1 {
-            font-size: 1.8rem;
-        }
-    }
+        }}
+        
+        .pl-header {{
+            padding: 1rem;
+            border-radius: 12px;
+        }}
+        
+        .element-container {{
+            margin-bottom: 0.5rem;
+        }}
+    }}
+    
+    /* Chart container */
+    .chart-container {{
+        background: rgba(55, 0, 60, 0.5);
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border: 1px solid rgba(0, 255, 133, 0.2);
+    }}
+    
+    /* Footer */
+    .pl-footer {{
+        text-align: center;
+        color: {PL_WHITE};
+        opacity: 0.7;
+        padding: 2rem 1rem;
+        font-size: 0.8rem;
+    }}
+    
+    .pl-footer a {{
+        color: {PL_CYAN};
+        text-decoration: none;
+    }}
+    
+    /* Spinner */
+    .stSpinner > div {{
+        border-top-color: {PL_CYAN} !important;
+    }}
+    
+    /* Metric styling */
+    [data-testid="stMetricValue"] {{
+        color: {PL_CYAN} !important;
+        font-size: clamp(1.2rem, 3vw, 1.5rem) !important;
+    }}
+    
+    [data-testid="stMetricLabel"] {{
+        color: {PL_WHITE} !important;
+    }}
+    
+    /* Tabs styling */
+    .stTabs [data-baseweb="tab-list"] {{
+        gap: 0.5rem;
+        background: transparent;
+    }}
+    
+    .stTabs [data-baseweb="tab"] {{
+        background: {PL_PURPLE_LIGHT};
+        border-radius: 8px 8px 0 0;
+        color: {PL_WHITE};
+        border: 1px solid rgba(0, 255, 133, 0.3);
+        padding: 0.5rem 1rem;
+    }}
+    
+    .stTabs [aria-selected="true"] {{
+        background: {PL_CYAN} !important;
+        color: {PL_PURPLE} !important;
+        font-weight: 700;
+    }}
+    
+    /* Scrollbar */
+    ::-webkit-scrollbar {{
+        width: 8px;
+        height: 8px;
+    }}
+    
+    ::-webkit-scrollbar-track {{
+        background: {PL_PURPLE};
+    }}
+    
+    ::-webkit-scrollbar-thumb {{
+        background: {PL_CYAN};
+        border-radius: 4px;
+    }}
     </style>
 """, unsafe_allow_html=True)
 
@@ -86,12 +318,12 @@ def get_sample_data():
     player_stats = pd.DataFrame(player_data)
     player_stats = player_stats.set_index('player')
     
-    games = pd.DataFrame({'game': range(1, 381)})  # Placeholder
+    games = pd.DataFrame({'game': range(1, 381)})
     
     return games, team_stats, player_stats
 
 # Cache data fetching
-@st.cache_data(ttl=3600)  # Cache for 1 hour
+@st.cache_data(ttl=3600)
 def fetch_league_data(league, season):
     """Fetch league data with caching"""
     try:
@@ -101,50 +333,20 @@ def fetch_league_data(league, season):
         player_stats = fbref.read_player_season_stats(stat_type="standard")
         return games, team_stats, player_stats, None
     except Exception as e:
-        # Return sample data if scraping fails
         if "403" in str(e) or "Forbidden" in str(e) or "Error" in str(e):
             games, team_stats, player_stats = get_sample_data()
             return games, team_stats, player_stats, "demo_mode"
         return None, None, None, str(e)
 
-def create_goals_scatter(team_stats):
-    """Create goals for vs goals against scatter plot"""
-    fig = go.Figure()
-    
-    fig.add_trace(go.Scatter(
-        x=team_stats['goals_for'],
-        y=team_stats['goals_against'],
-        mode='markers+text',
-        text=team_stats.index,
-        textposition="top center",
-        marker=dict(
-            size=team_stats['points']*2 if 'points' in team_stats.columns else 12,
-            color=team_stats['points'] if 'points' in team_stats.columns else [0]*len(team_stats),
-            colorscale='Viridis',
-            showscale=True,
-            colorbar=dict(title="Points"),
-            line=dict(width=2, color='white')
-        ),
-        hovertemplate='<b>%{text}</b><br>' +
-                      'Goals For: %{x}<br>' +
-                      'Goals Against: %{y}<br>' +
-                      '<extra></extra>'
-    ))
-    
-    fig.update_layout(
-        title="Goals For vs Goals Against",
-        xaxis_title="Goals For",
-        yaxis_title="Goals Against",
-        height=500,
-        template="plotly_white",
-        font=dict(size=12)
-    )
-    
-    return fig
-
-def create_points_chart(team_stats):
-    """Create points distribution bar chart"""
+# Chart creation functions with PL branding
+def create_standings_chart(team_stats):
+    """Create league standings bar chart"""
     sorted_teams = team_stats.sort_values('points', ascending=True)
+    
+    # Create gradient colors based on position
+    n_teams = len(sorted_teams)
+    colors = [f'rgb({int(55 + (0-55)*i/n_teams)}, {int(0 + (255-0)*i/n_teams)}, {int(60 + (133-60)*i/n_teams)})' 
+              for i in range(n_teams)]
     
     fig = go.Figure()
     
@@ -153,316 +355,396 @@ def create_points_chart(team_stats):
         x=sorted_teams['points'],
         orientation='h',
         marker=dict(
-            color=sorted_teams['points'],
-            colorscale='RdYlGn',
-            showscale=True,
-            colorbar=dict(title="Points")
+            color=colors,
+            line=dict(color=PL_CYAN, width=1)
         ),
         text=sorted_teams['points'],
         textposition='outside',
+        textfont=dict(color=PL_WHITE, size=12, family='Poppins'),
         hovertemplate='<b>%{y}</b><br>Points: %{x}<extra></extra>'
     ))
     
     fig.update_layout(
-        title="League Standings (Points)",
-        xaxis_title="Points",
-        yaxis_title="",
-        height=max(600, len(sorted_teams) * 30),
-        template="plotly_white",
-        font=dict(size=11)
+        title=None,
+        xaxis_title=None,
+        yaxis_title=None,
+        height=max(500, n_teams * 28),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',
+        font=dict(family='Poppins', color=PL_WHITE),
+        xaxis=dict(
+            showgrid=True,
+            gridcolor='rgba(0, 255, 133, 0.1)',
+            zeroline=False
+        ),
+        yaxis=dict(
+            showgrid=False,
+            tickfont=dict(size=11)
+        ),
+        margin=dict(l=10, r=50, t=10, b=10)
     )
     
     return fig
 
-def create_goal_difference_chart(team_stats):
-    """Create goal difference chart"""
-    if 'goals_for' in team_stats.columns and 'goals_against' in team_stats.columns:
-        goal_diff = team_stats['goals_for'] - team_stats['goals_against']
-        sorted_gd = goal_diff.sort_values(ascending=True)
-        
-        colors = ['green' if x > 0 else 'red' for x in sorted_gd]
-        
-        fig = go.Figure()
-        
-        fig.add_trace(go.Bar(
-            y=sorted_gd.index,
-            x=sorted_gd.values,
-            orientation='h',
-            marker=dict(color=colors),
-            text=sorted_gd.values,
-            textposition='outside',
-            hovertemplate='<b>%{y}</b><br>Goal Difference: %{x}<extra></extra>'
-        ))
-        
-        fig.add_shape(
-            type="line",
-            x0=0, x1=0,
-            y0=-0.5, y1=len(sorted_gd)-0.5,
-            line=dict(color="black", width=2, dash="dash")
-        )
-        
-        fig.update_layout(
-            title="Goal Difference by Team",
-            xaxis_title="Goal Difference",
-            yaxis_title="",
-            height=max(600, len(sorted_gd) * 30),
-            template="plotly_white",
-            font=dict(size=11)
-        )
-        
-        return fig
-    return None
-
-def create_win_rate_chart(team_stats):
-    """Create win rate chart"""
-    if 'wins' in team_stats.columns and 'games' in team_stats.columns:
-        win_rate = (team_stats['wins'] / team_stats['games']) * 100
-        sorted_wr = win_rate.sort_values(ascending=True)
-        
-        fig = go.Figure()
-        
-        fig.add_trace(go.Bar(
-            y=sorted_wr.index,
-            x=sorted_wr.values,
-            orientation='h',
-            marker=dict(
-                color=sorted_wr.values,
-                colorscale='Blues',
-                showscale=True,
-                colorbar=dict(title="Win Rate %")
+def create_goals_chart(team_stats):
+    """Create goals for vs against scatter plot"""
+    fig = go.Figure()
+    
+    # Calculate goal difference for color
+    goal_diff = team_stats['goals_for'] - team_stats['goals_against']
+    
+    fig.add_trace(go.Scatter(
+        x=team_stats['goals_for'],
+        y=team_stats['goals_against'],
+        mode='markers+text',
+        text=team_stats.index,
+        textposition="top center",
+        textfont=dict(size=9, color=PL_WHITE, family='Poppins'),
+        marker=dict(
+            size=team_stats['points'] / 3 + 10,
+            color=goal_diff,
+            colorscale=[[0, PL_MAGENTA], [0.5, PL_PURPLE_LIGHT], [1, PL_CYAN]],
+            showscale=True,
+            colorbar=dict(
+                title=dict(text="Goal Diff", font=dict(color=PL_WHITE)),
+                tickfont=dict(color=PL_WHITE)
             ),
-            text=[f"{x:.1f}%" for x in sorted_wr.values],
-            textposition='outside',
-            hovertemplate='<b>%{y}</b><br>Win Rate: %{x:.1f}%<extra></extra>'
-        ))
-        
-        fig.update_layout(
-            title="Win Rate by Team",
-            xaxis_title="Win Rate (%)",
-            yaxis_title="",
-            height=max(600, len(sorted_wr) * 30),
-            template="plotly_white",
-            font=dict(size=11)
-        )
-        
-        return fig
-    return None
+            line=dict(width=2, color=PL_WHITE)
+        ),
+        hovertemplate='<b>%{text}</b><br>Goals For: %{x}<br>Goals Against: %{y}<extra></extra>'
+    ))
+    
+    fig.update_layout(
+        title=None,
+        xaxis_title=dict(text="Goals Scored", font=dict(color=PL_CYAN)),
+        yaxis_title=dict(text="Goals Conceded", font=dict(color=PL_CYAN)),
+        height=450,
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',
+        font=dict(family='Poppins', color=PL_WHITE),
+        xaxis=dict(
+            showgrid=True,
+            gridcolor='rgba(0, 255, 133, 0.1)',
+            zeroline=False
+        ),
+        yaxis=dict(
+            showgrid=True,
+            gridcolor='rgba(0, 255, 133, 0.1)',
+            zeroline=False
+        ),
+        margin=dict(l=10, r=10, t=30, b=10)
+    )
+    
+    return fig
 
 def create_top_scorers_chart(player_stats):
-    """Create top scorers chart"""
-    if player_stats is not None and 'goals' in player_stats.columns:
-        top_scorers = player_stats.nlargest(15, 'goals')
-        
-        fig = go.Figure()
-        
-        fig.add_trace(go.Bar(
-            y=top_scorers.index,
-            x=top_scorers['goals'],
-            orientation='h',
-            marker=dict(
-                color='gold',
-                line=dict(color='orange', width=2)
-            ),
-            text=top_scorers['goals'],
-            textposition='outside',
-            hovertemplate='<b>%{y}</b><br>Goals: %{x}<extra></extra>'
-        ))
-        
-        fig.update_layout(
-            title="Top Goal Scorers",
-            xaxis_title="Goals",
-            yaxis_title="",
-            height=max(500, len(top_scorers) * 30),
-            template="plotly_white",
-            font=dict(size=11)
-        )
-        
-        return fig
-    return None
-
-def create_team_comparison(team_stats, selected_teams):
-    """Create team comparison chart"""
-    if not selected_teams:
+    """Create top scorers horizontal bar chart"""
+    if player_stats is None or 'goals' not in player_stats.columns:
         return None
     
-    comparison_data = team_stats.loc[selected_teams]
-    
-    metrics = ['points', 'wins', 'goals_for', 'goals_against']
-    available_metrics = [m for m in metrics if m in comparison_data.columns]
-    
-    if not available_metrics:
-        return None
+    top_scorers = player_stats.nlargest(10, 'goals')
     
     fig = go.Figure()
     
-    for metric in available_metrics:
-        fig.add_trace(go.Bar(
-            name=metric.replace('_', ' ').title(),
-            x=comparison_data.index,
-            y=comparison_data[metric],
-            hovertemplate=f'<b>%{{x}}</b><br>{metric.replace("_", " ").title()}: %{{y}}<extra></extra>'
-        ))
+    fig.add_trace(go.Bar(
+        y=top_scorers.index,
+        x=top_scorers['goals'],
+        orientation='h',
+        marker=dict(
+            color=PL_CYAN,
+            line=dict(color=PL_WHITE, width=1)
+        ),
+        text=top_scorers['goals'],
+        textposition='outside',
+        textfont=dict(color=PL_WHITE, size=12, family='Poppins'),
+        hovertemplate='<b>%{y}</b><br>Goals: %{x}<extra></extra>'
+    ))
     
     fig.update_layout(
-        title="Team Comparison",
-        xaxis_title="Team",
-        yaxis_title="Value",
-        barmode='group',
-        height=500,
-        template="plotly_white",
-        font=dict(size=12)
+        title=None,
+        xaxis_title=None,
+        yaxis_title=None,
+        height=400,
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',
+        font=dict(family='Poppins', color=PL_WHITE),
+        xaxis=dict(
+            showgrid=True,
+            gridcolor='rgba(0, 255, 133, 0.1)',
+            zeroline=False
+        ),
+        yaxis=dict(showgrid=False),
+        margin=dict(l=10, r=50, t=10, b=10)
+    )
+    
+    return fig
+
+def create_goal_diff_chart(team_stats):
+    """Create goal difference chart"""
+    goal_diff = team_stats['goals_for'] - team_stats['goals_against']
+    sorted_gd = goal_diff.sort_values(ascending=True)
+    
+    colors = [PL_CYAN if x > 0 else PL_MAGENTA for x in sorted_gd]
+    
+    fig = go.Figure()
+    
+    fig.add_trace(go.Bar(
+        y=sorted_gd.index,
+        x=sorted_gd.values,
+        orientation='h',
+        marker=dict(color=colors, line=dict(color=PL_WHITE, width=0.5)),
+        text=[f"+{x}" if x > 0 else str(x) for x in sorted_gd.values],
+        textposition='outside',
+        textfont=dict(color=PL_WHITE, size=10, family='Poppins'),
+        hovertemplate='<b>%{y}</b><br>Goal Difference: %{x}<extra></extra>'
+    ))
+    
+    fig.add_shape(
+        type="line",
+        x0=0, x1=0,
+        y0=-0.5, y1=len(sorted_gd)-0.5,
+        line=dict(color=PL_WHITE, width=2, dash="dot")
+    )
+    
+    fig.update_layout(
+        title=None,
+        height=max(450, len(sorted_gd) * 25),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',
+        font=dict(family='Poppins', color=PL_WHITE),
+        xaxis=dict(
+            showgrid=True,
+            gridcolor='rgba(0, 255, 133, 0.1)',
+            zeroline=False
+        ),
+        yaxis=dict(showgrid=False, tickfont=dict(size=10)),
+        margin=dict(l=10, r=60, t=10, b=10)
+    )
+    
+    return fig
+
+def create_win_rate_chart(team_stats):
+    """Create win rate donut/pie chart for top 5 teams"""
+    if 'wins' not in team_stats.columns or 'games' not in team_stats.columns:
+        return None
+    
+    win_rate = (team_stats['wins'] / team_stats['games']) * 100
+    top_5 = win_rate.nlargest(5)
+    
+    fig = go.Figure()
+    
+    fig.add_trace(go.Pie(
+        labels=top_5.index,
+        values=top_5.values,
+        hole=0.5,
+        marker=dict(
+            colors=[PL_CYAN, PL_MAGENTA, PL_PURPLE_LIGHT, '#6b2d5c', '#9d4edd'],
+            line=dict(color=PL_WHITE, width=2)
+        ),
+        textinfo='label+percent',
+        textfont=dict(size=11, color=PL_WHITE, family='Poppins'),
+        hovertemplate='<b>%{label}</b><br>Win Rate: %{value:.1f}%<extra></extra>'
+    ))
+    
+    fig.update_layout(
+        title=None,
+        height=350,
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',
+        font=dict(family='Poppins', color=PL_WHITE),
+        showlegend=False,
+        margin=dict(l=10, r=10, t=10, b=10),
+        annotations=[dict(
+            text='WIN<br>RATE',
+            x=0.5, y=0.5,
+            font=dict(size=14, color=PL_CYAN, family='Poppins', weight=700),
+            showarrow=False
+        )]
     )
     
     return fig
 
 # Main App
 def main():
-    st.title("⚽ Soccer Statistics Analysis")
-    st.markdown("### Interactive soccer statistics and visualizations")
+    # Header
+    st.markdown("""
+        <div class="pl-header">
+            <h1 class="pl-title">⚽ <span>Premier League</span> Stats Hub</h1>
+            <p class="pl-subtitle">Interactive Statistics & Analysis Dashboard</p>
+        </div>
+    """, unsafe_allow_html=True)
     
-    # Sidebar for controls
-    with st.sidebar:
-        st.header("⚙️ Settings")
-        
-        # League selection
-        leagues = {
-            "Premier League": "ENG-Premier League",
-            "La Liga": "ESP-La Liga",
-            "Serie A": "ITA-Serie A",
-            "Bundesliga": "GER-Bundesliga",
-            "Ligue 1": "FRA-Ligue 1"
-        }
-        
+    # League and Season selectors in columns (mobile-friendly)
+    col1, col2 = st.columns(2)
+    
+    leagues = {
+        "Premier League": "ENG-Premier League",
+        "La Liga": "ESP-La Liga",
+        "Serie A": "ITA-Serie A",
+        "Bundesliga": "GER-Bundesliga",
+        "Ligue 1": "FRA-Ligue 1"
+    }
+    
+    with col1:
         selected_league_name = st.selectbox(
-            "Select League",
+            "🏆 League",
             options=list(leagues.keys()),
             index=0
         )
-        selected_league = leagues[selected_league_name]
-        
-        # Season selection
+    
+    with col2:
         current_year = datetime.now().year
         seasons = [str(year) for year in range(2018, current_year + 1)]
         selected_season = st.selectbox(
-            "Select Season",
+            "📅 Season",
             options=seasons,
-            index=len(seasons) - 2  # Default to previous season
+            index=len(seasons) - 2
         )
-        
-        st.markdown("---")
-        st.markdown("### 📊 Chart Options")
-        
-        show_goals_scatter = st.checkbox("Goals Scatter Plot", value=True)
-        show_points = st.checkbox("Points Standings", value=True)
-        show_goal_diff = st.checkbox("Goal Difference", value=True)
-        show_win_rate = st.checkbox("Win Rate", value=True)
-        show_top_scorers = st.checkbox("Top Scorers", value=True)
+    
+    selected_league = leagues[selected_league_name]
     
     # Fetch data
-    with st.spinner(f"Fetching {selected_league_name} {selected_season} data..."):
+    with st.spinner("Loading data..."):
         games, team_stats, player_stats, error = fetch_league_data(selected_league, selected_season)
     
     if error == "demo_mode":
-        st.warning("⚠️ **Demo Mode**: Live data scraping is currently blocked. Showing sample Premier League 2023/24 data for demonstration.")
+        st.markdown(f"""
+            <div style="background: linear-gradient(90deg, {PL_MAGENTA}22, {PL_PURPLE}22); 
+                        padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem;
+                        border-left: 4px solid {PL_CYAN};">
+                <span style="color: {PL_CYAN};">ℹ️</span>
+                <span style="color: {PL_WHITE}; font-size: 0.85rem;">
+                    <strong>Demo Mode</strong> — Showing sample PL 2023/24 data
+                </span>
+            </div>
+        """, unsafe_allow_html=True)
     elif error:
-        st.error(f"Error fetching data: {error}")
-        st.info("💡 **Tips:**\n- Check your internet connection\n- Try a different season\n- Some leagues may not have data for all seasons")
+        st.error(f"Error: {error}")
         return
     
     if team_stats is None or team_stats.empty:
-        st.warning("No data available for this league and season.")
+        st.warning("No data available")
         return
     
-    # Display key metrics
-    st.markdown("### 📈 Key Statistics")
-    col1, col2, col3, col4 = st.columns(4)
+    # Stats Cards
+    total_goals = int(team_stats['goals_for'].sum())
+    avg_goals = team_stats['goals_for'].mean()
+    top_team = team_stats['points'].idxmax()
+    top_points = int(team_stats['points'].max())
     
-    with col1:
-        st.metric("Teams", len(team_stats))
-    with col2:
-        st.metric("Total Games", len(games) if games is not None and not games.empty else "N/A")
-    with col3:
-        if 'points' in team_stats.columns:
-            st.metric("Avg Points", f"{team_stats['points'].mean():.1f}")
-    with col4:
-        if 'goals_for' in team_stats.columns:
-            st.metric("Total Goals", int(team_stats['goals_for'].sum()))
+    st.markdown(f"""
+        <div class="stats-container">
+            <div class="stat-card">
+                <p class="stat-value">{len(team_stats)}</p>
+                <p class="stat-label">Teams</p>
+            </div>
+            <div class="stat-card">
+                <p class="stat-value">{total_goals}</p>
+                <p class="stat-label">Total Goals</p>
+            </div>
+            <div class="stat-card">
+                <p class="stat-value">{avg_goals:.1f}</p>
+                <p class="stat-label">Avg Goals</p>
+            </div>
+            <div class="stat-card">
+                <p class="stat-value">{top_points}</p>
+                <p class="stat-label">Top Points</p>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
     
-    st.markdown("---")
+    # Tabs for different views
+    tab1, tab2, tab3, tab4 = st.tabs(["📊 Standings", "⚽ Goals", "🎯 Scorers", "📈 Analysis"])
     
-    # Charts
-    if show_goals_scatter:
-        st.markdown("### 🎯 Goals Analysis")
-        fig = create_goals_scatter(team_stats)
-        st.plotly_chart(fig, use_container_width=True)
+    with tab1:
+        st.markdown('<p class="section-header">🏆 League Table</p>', unsafe_allow_html=True)
+        fig = create_standings_chart(team_stats)
+        st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
     
-    col1, col2 = st.columns(2)
+    with tab2:
+        st.markdown('<p class="section-header">⚽ Goals Analysis</p>', unsafe_allow_html=True)
+        fig = create_goals_chart(team_stats)
+        st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
+        
+        st.markdown('<p class="section-header">📊 Goal Difference</p>', unsafe_allow_html=True)
+        fig = create_goal_diff_chart(team_stats)
+        st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
     
-    with col1:
-        if show_points:
-            st.markdown("### 🏆 League Standings")
-            fig = create_points_chart(team_stats)
-            st.plotly_chart(fig, use_container_width=True)
-    
-    with col2:
-        if show_win_rate:
-            st.markdown("### 📊 Win Rate")
-            fig = create_win_rate_chart(team_stats)
-            if fig:
-                st.plotly_chart(fig, use_container_width=True)
-    
-    if show_goal_diff:
-        st.markdown("### ⚖️ Goal Difference")
-        fig = create_goal_difference_chart(team_stats)
-        if fig:
-            st.plotly_chart(fig, use_container_width=True)
-    
-    if show_top_scorers:
-        st.markdown("### ⚽ Top Goal Scorers")
+    with tab3:
+        st.markdown('<p class="section-header">🎯 Top Scorers</p>', unsafe_allow_html=True)
         fig = create_top_scorers_chart(player_stats)
         if fig:
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
+        else:
+            st.info("Player data not available")
     
-    # Team Comparison Section
-    st.markdown("---")
-    st.markdown("### 🔍 Team Comparison")
-    
-    if 'team' in team_stats.columns:
-        team_list = team_stats['team'].tolist()
-    else:
-        team_list = team_stats.index.tolist()
-    
-    selected_teams = st.multiselect(
-        "Select teams to compare",
-        options=team_list,
-        default=team_list[:3] if len(team_list) >= 3 else team_list
-    )
-    
-    if selected_teams:
-        fig = create_team_comparison(team_stats, selected_teams)
+    with tab4:
+        st.markdown('<p class="section-header">📈 Win Rate (Top 5)</p>', unsafe_allow_html=True)
+        fig = create_win_rate_chart(team_stats)
         if fig:
-            st.plotly_chart(fig, use_container_width=True)
-    
-    # Data table
-    with st.expander("📋 View Raw Data"):
-        st.markdown("### Team Statistics")
-        st.dataframe(team_stats, use_container_width=True)
+            st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
         
-        if player_stats is not None and not player_stats.empty:
-            st.markdown("### Player Statistics")
-            st.dataframe(player_stats.head(50), use_container_width=True)
+        # Team comparison
+        st.markdown('<p class="section-header">🔍 Compare Teams</p>', unsafe_allow_html=True)
+        
+        team_list = team_stats.index.tolist()
+        selected_teams = st.multiselect(
+            "Select teams to compare",
+            options=team_list,
+            default=team_list[:3] if len(team_list) >= 3 else team_list
+        )
+        
+        if selected_teams:
+            comparison_data = team_stats.loc[selected_teams][['points', 'wins', 'goals_for', 'goals_against']]
+            comparison_data.columns = ['Points', 'Wins', 'Goals For', 'Goals Against']
+            
+            fig = go.Figure()
+            
+            colors = [PL_CYAN, PL_MAGENTA, PL_WHITE, '#9d4edd']
+            
+            for i, col in enumerate(comparison_data.columns):
+                fig.add_trace(go.Bar(
+                    name=col,
+                    x=comparison_data.index,
+                    y=comparison_data[col],
+                    marker_color=colors[i % len(colors)]
+                ))
+            
+            fig.update_layout(
+                barmode='group',
+                height=400,
+                paper_bgcolor='rgba(0,0,0,0)',
+                plot_bgcolor='rgba(0,0,0,0)',
+                font=dict(family='Poppins', color=PL_WHITE),
+                legend=dict(
+                    orientation="h",
+                    yanchor="bottom",
+                    y=1.02,
+                    xanchor="center",
+                    x=0.5,
+                    font=dict(size=10)
+                ),
+                xaxis=dict(showgrid=False),
+                yaxis=dict(showgrid=True, gridcolor='rgba(0, 255, 133, 0.1)'),
+                margin=dict(l=10, r=10, t=50, b=10)
+            )
+            
+            st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
+    
+    # Data table expander
+    with st.expander("📋 View Full Data Table"):
+        st.dataframe(
+            team_stats.style.background_gradient(cmap='Purples'),
+            use_container_width=True
+        )
     
     # Footer
-    st.markdown("---")
-    st.markdown(
-        """
-        <div style='text-align: center; color: #666; padding: 20px;'>
+    st.markdown(f"""
+        <div class="pl-footer">
             <p>Built with ⚽ using Streamlit & SoccerData</p>
-            <p>Data source: FBref</p>
+            <p>Data source: FBref | Not affiliated with Premier League</p>
         </div>
-        """,
-        unsafe_allow_html=True
-    )
+    """, unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
