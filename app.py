@@ -450,20 +450,30 @@ def main():
     </div>
     """, unsafe_allow_html=True)
     
-    # API Key input (in expander for cleaner look)
-    with st.expander("⚙️ Settings - Add your FREE API key for live data"):
-        api_key = st.text_input(
-            "Football-Data.org API Key",
-            type="password",
-            help="Get FREE key at football-data.org/client/register"
-        )
-        st.markdown("""
-        <div class="info-box">
-            <p>📌 <strong>Get your FREE API key:</strong> 
-            <a href="https://www.football-data.org/client/register" target="_blank" style="color: #00ff85;">
-            football-data.org/client/register</a> (10 req/min free)</p>
-        </div>
-        """, unsafe_allow_html=True)
+    # Check for API key in secrets first, then allow manual input
+    api_key = None
+    
+    # Try to get from Streamlit secrets
+    try:
+        api_key = st.secrets.get("FOOTBALL_API_KEY", None)
+    except:
+        pass
+    
+    # If no secret, show input option
+    if not api_key:
+        with st.expander("⚙️ Settings - Add API key for live data"):
+            api_key = st.text_input(
+                "Football-Data.org API Key",
+                type="password",
+                help="Get FREE key at football-data.org/client/register"
+            )
+            st.markdown("""
+            <div class="info-box">
+                <p>📌 <strong>Get your FREE API key:</strong> 
+                <a href="https://www.football-data.org/client/register" target="_blank" style="color: #00ff85;">
+                football-data.org/client/register</a> (10 req/min free)</p>
+            </div>
+            """, unsafe_allow_html=True)
     
     # Load data
     with st.spinner("Loading data..."):
@@ -474,6 +484,12 @@ def main():
         st.markdown("""
         <div class="info-box">
             <p>ℹ️ Showing <strong>sample data</strong> (2023/24 season). Add API key for live data.</p>
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        st.markdown("""
+        <div class="info-box">
+            <p>✅ <strong>Live data</strong> connected! Showing current season stats.</p>
         </div>
         """, unsafe_allow_html=True)
     
